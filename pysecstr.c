@@ -1,6 +1,5 @@
 #include <Python.h>
 #include <openssl/crypto.h>
-#include <stdio.h>
 
 static PyObject* SecureString_clearmem(PyObject *self, PyObject *str) {
 	char *buffer;
