@@ -7,7 +7,7 @@ except ImportError:
 
 setup(
     name='SecureString',
-    version='0.1',
+    version='0.2',
     description='Clears the contents of strings containing cryptographic material',
     author=u'András Veres-Szentkirályi, Lawrence Fan',
     author_email='vsza@vsza.hu, fanl3@rpi.edu',
