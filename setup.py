@@ -13,5 +13,6 @@ setup(
     author_email='erik@getvida.io',
     url='https://github.com/dnet/pysecbytes',
     license='MIT',
+    py_modules=["secbytes"],
     ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp'])],
 )
