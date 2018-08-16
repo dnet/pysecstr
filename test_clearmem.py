@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from SecureBytes import clearmem
+from SecureBytes import clearmem, scanmem
 
 from secbytes import secbytes
 
@@ -28,12 +28,12 @@ class TestSecureBytes(TestCase):
 
         assert(s == (a+b))
 
-        # adjacent a+b in memory
-        assert(scanmem(a,b))
-
-        # remove s
-        del(s)
-
-        # adjacent a+b not in memory
-        assert(!scanmem(a,b))
+        import sys
+        if sys.platform == "win32":
+            # adjacent a+b in memory
+            assert(scanmem(a,b))
+            # remove s
+            del(s)
+            # adjacent a+b not in memory
+            assert(not scanmem(a,b))
 
