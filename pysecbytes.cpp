@@ -66,7 +66,7 @@
         return 0;
     }
 #else
-    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
+    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb) {
         // todo, some ptrace thing?  osx?
         return 0;
     }
