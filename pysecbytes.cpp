@@ -39,6 +39,12 @@
         }
         return 0;
     }
+#else
+    char* getAddressOfData(const char *data, size_t len) {
+        // todo, some ptrace thing?  osx?
+        return 0;
+    }
+
 #endif
 
 #if PY_MAJOR_VERSION >= 3
@@ -46,7 +52,7 @@
 		char *buffer;
 		Py_ssize_t length;
 
-		if(!PyArg_ParseTuple(args, "s*", &buffer, &length)) {
+		if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
 			return NULL;
 		}
 		memset(buffer, 0, length);
@@ -56,7 +62,7 @@
 		char *buffer;
 		Py_ssize_t length;
 
-		if(!PyArg_ParseTuple(args, "s*", &buffer, &length)) {
+		if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
 			return NULL;
 		}
 		if (getAddressOfData(buffer, length)) {
