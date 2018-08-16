@@ -64,7 +64,7 @@ static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "ns#", &pid, &buffer, &length)) {
         return NULL;
     }
-    if (getAddressOfData(n, buffer, length)) {
+    if (getAddressOfData(pid, buffer, length)) {
         Py_RETURN_TRUE;
     }
     Py_RETURN_FALSE;
