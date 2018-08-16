@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/VidaID/pysecbytes.svg?branch=master)](https://travis-ci.com/VidaID/pysecbytes)
+
 ## Install:
 
     pip install git+https://github.com/VidaID/pysecbytes.git  
