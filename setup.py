@@ -11,7 +11,7 @@ setup(
     description='Clears the contents of bytes containing cryptographic material',
     author=u'Erik Aronesty',
     author_email='erik@getvida.io',
-    url='https://github.com/dnet/pysecbytes',
+    url='https://github.com/vidaid/pysecbytes',
     license='MIT',
     ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp'])],
 )
