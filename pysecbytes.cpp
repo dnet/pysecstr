@@ -5,6 +5,14 @@
 #ifdef _WIN32
     #include <Windows.h>
     #include <vector>
+
+    void _hexdump(char *dat, size_t len) {
+        for (size_t i=0;i<len;++i) {
+            printf("%02x", dat[i]);
+        }
+        printf("\n");
+    }
+
     char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
     {
         DWORD pid = GetCurrentProcessId();
@@ -15,26 +23,41 @@
             GetSystemInfo(&si);
             MEMORY_BASIC_INFORMATION info;
             std::vector<char> chunk;
-            char* p = 0;
+            char* p = (char *)si.lpMinimumApplicationAddress;
             while(p < si.lpMaximumApplicationAddress)
             {
                 if(VirtualQueryEx(process, p, &info, sizeof(info)) == sizeof(info))
                 {
                     p = (char*)info.BaseAddress;
-                    chunk.resize(info.RegionSize);
-                    SIZE_T bytesRead;
-                    if(ReadProcessMemory(process, p, &chunk[0], info.RegionSize, &bytesRead))
-                    {
-                        for(size_t i = 0; i < (bytesRead - lena - lenb); ++i)
+
+                    const int chunk_size = 32768;
+                    std::vector<char> chunk;
+                    chunk.resize(chunk_size + lena + lenb);
+                    //todo worry about boundry filling
+                    char * chunk_ptr = chunk.data() + lena + lenb;
+                    size_t remaining = info.RegionSize;
+
+                    for (size_t offset = 0; offset < info.RegionSize; offset += chunk_size) {
+                        SIZE_T bytesRead;
+                        if(ReadProcessMemory(process, p+offset, chunk_ptr, remaining > chunk_size ? chunk_size : remaining, &bytesRead))
                         {
-                            if(memcmp(a, &chunk[i], lena) == 0)
+                            if (bytesRead < (lena+lenb))
+                                continue;
+
+                            for(size_t i = 0; i < (bytesRead - lena - lenb + 1); ++i)
                             {
-                                if(memcmp(b, (&chunk[i])+lena, lenb) == 0)
+                                if(memcmp(a, chunk_ptr+i, lena) == 0)
                                 {
-                                    return (char*)p + i;
+                                    if(memcmp(b, (chunk_ptr+i)+lena, lenb) == 0)
+                                    {
+                                        return (char*)p + i;
+                                    }
                                 }
                             }
+                        } else {
+                            break;
                         }
+                        remaining -= chunk_size;
                     }
                     p += info.RegionSize;
                 }
