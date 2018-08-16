@@ -77,11 +77,26 @@ static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
     char *buffer;
     Py_ssize_t length;
 
-    if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
-        return NULL;
+    if(PyArg_ParseTuple(args, "s#", &buffer, &length)) {
+        memset(buffer, 0, length);
+        Py_RETURN_NONE;
     }
-    memset(buffer, 0, length);
-    Py_RETURN_NONE;
+    PyErr_Clear();
+
+    // support pylong
+    PyLongObject *pyl;
+    if(PyArg_ParseTuple(args, "O!", &PyLong_Type, &pyl)) {
+        Py_ssize_t i = Py_SIZE(pyl);
+        if (i < 0)
+            i=-i;
+        while (--i >= 0)
+            pyl->ob_digit[i] = 0;
+        Py_RETURN_NONE;
+    }
+
+    PyErr_SetString(PyExc_TypeError, "Argument must be a bytes-like object or an integer");
+
+    return NULL;
 }
 static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
     char *bufa;

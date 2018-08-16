@@ -6,6 +6,8 @@
 
 ## Use:
 
+Currently supports clearing integers, strings and bytes
+
     from SecureBytes import clearmem
     
     x = b'data that must be removed'

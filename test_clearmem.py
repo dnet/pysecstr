@@ -20,6 +20,15 @@ class TestSecureBytes(TestCase):
 
         assert(a+b)
 
+    def test_clear_int(self):
+        i = 239872349827349587239857234985623497562387465284396528934658923465892436582436587243
+
+        clearmem(i)
+
+        print(i)
+
+        assert(i+0 == 0);
+
     def test_scanmem(self):
         # todo, make linux vm area scanner 
         if sys.platform != "win32":
