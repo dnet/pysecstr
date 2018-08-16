@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from SecureBytes import clearmem, scanmem
 
+import sys
+
 class TestSecureBytes(TestCase):
     def test_clear_str(self):
         s = "12R34G"
@@ -19,24 +21,33 @@ class TestSecureBytes(TestCase):
         assert(a+b)
 
     def test_scanmem(self):
+        # todo, make linux vm area scanner 
+        if sys.platform != "win32":
+            return
+
         a = b"zzX~X12R9s8fysd98hf"
         b = b"zzX~X34Gsdf909sdjff"
         s = a + b
-        import sys
-        if sys.platform == "win32":
-            # adjacent a+b in memory
-            assert(scanmem(a,b))
-            # remove s
-            clearmem(s)
-            # adjacent a+b not in memory
-            assert(not scanmem(a,b))
+
+        # adjacent a+b in memory
+        assert(scanmem(a,b))
+
+        # remove s
+        clearmem(s)
+
+        # adjacent a+b not in memory
+        assert(not scanmem(a,b))
 
     def test_del_refs(self):
+        # todo, make linux vm area scanner 
+        if sys.platform != "win32":
+            return
+
         a = b"zzX~X12R9s8fysd9"
         b = b"zzX~X34Gsdf909sd"
 
-        # warning: this test will NOT pass if secbytes is derived from bytes
-        # because python 3 handles derivation from primitives in a way that causes more than one copy
+        # Warning: this test will NOT pass if secbytes is derived from bytes
+        # python 3 handles derivation from primitives in a way that causes more than one copy
 
         class secbytes():
             def __init__(self, k):
