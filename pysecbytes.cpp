@@ -5,8 +5,9 @@
 #ifdef _WIN32
     #include <Windows.h>
     #include <vector>
-    char* getAddressOfData(DWORD pid, const char *data, size_t len)
+    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
     {
+        DWORD pid = GetCurrentProcessId();
         HANDLE process = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, pid);
         if(process)
         {
@@ -24,11 +25,14 @@
                     SIZE_T bytesRead;
                     if(ReadProcessMemory(process, p, &chunk[0], info.RegionSize, &bytesRead))
                     {
-                        for(size_t i = 0; i < (bytesRead - len); ++i)
+                        for(size_t i = 0; i < (bytesRead - lena - lenb); ++i)
                         {
-                            if(memcmp(data, &chunk[i], len) == 0)
+                            if(memcmp(a, &chunk[i], lena) == 0)
                             {
-                                return (char*)p + i;
+                                if(memcmp(b, (&chunk[i])+lena, lenb) == 0)
+                                {
+                                    return (char*)p + i;
+                                }
                             }
                         }
                     }
@@ -39,7 +43,7 @@
         return 0;
     }
 #else
-    char* getAddressOfData(Py_ssize_t pid, const char *data, size_t len) {
+    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
         // todo, some ptrace thing?  osx?
         return 0;
     }
@@ -57,14 +61,15 @@ static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
-    char *buffer;
-    Py_ssize_t length;
-    Py_ssize_t pid;
+    char *bufa;
+    Py_ssize_t lena;
+    char *bufb;
+    Py_ssize_t lenb;
 
-    if(!PyArg_ParseTuple(args, "ns#", &pid, &buffer, &length)) {
+    if(!PyArg_ParseTuple(args, "s#s#", &bufa, &lena, &bufb, &lenb)) {
         return NULL;
     }
-    if (getAddressOfData(pid, buffer, length)) {
+    if (getAddressOfData(bufa, lena, bufb, lenb)) {
         Py_RETURN_TRUE;
     }
     Py_RETURN_FALSE;
