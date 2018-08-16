@@ -5,9 +5,8 @@
 #ifdef _WIN32
     #include <Windows.h>
     #include <vector>
-    char* getAddressOfData(const char *data, size_t len)
+    char* getAddressOfData(DWORD pid, const char *data, size_t len)
     {
-        DWORD pid = GetCurrentProcessId();
         HANDLE process = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, pid);
         if(process)
         {
@@ -40,47 +39,36 @@
         return 0;
     }
 #else
-    char* getAddressOfData(const char *data, size_t len) {
+    char* getAddressOfData(Py_ssize_t pid, const char *data, size_t len) {
         // todo, some ptrace thing?  osx?
         return 0;
     }
 
 #endif
 
-#if PY_MAJOR_VERSION >= 3
-	static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
-		char *buffer;
-		Py_ssize_t length;
+static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
+    char *buffer;
+    Py_ssize_t length;
 
-		if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
-			return NULL;
-		}
-		memset(buffer, 0, length);
-		Py_RETURN_NONE;
-	}
-	static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
-		char *buffer;
-		Py_ssize_t length;
+    if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
+        return NULL;
+    }
+    memset(buffer, 0, length);
+    Py_RETURN_NONE;
+}
+static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
+    char *buffer;
+    Py_ssize_t length;
+    Py_ssize_t pid;
 
-		if(!PyArg_ParseTuple(args, "s#", &buffer, &length)) {
-			return NULL;
-		}
-		if (getAddressOfData(buffer, length)) {
-            Py_RETURN_TRUE;
-        }
-        Py_RETURN_FALSE;
-	}
-#else
-	static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *str) {
-		char *buffer;
-		Py_ssize_t length;
-
-		if (PyString_AsStringAndSize(str, &buffer, &length) != -1) {
-		    memset(buffer, 0, length);
-		}
-		Py_RETURN_NONE;
-	}
-#endif
+    if(!PyArg_ParseTuple(args, "ns#", &pid, &buffer, &length)) {
+        return NULL;
+    }
+    if (getAddressOfData(n, buffer, length)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
 
 #if PY_MAJOR_VERSION >= 3
 	static PyMethodDef SecureBytesMethods[] = {
@@ -90,8 +78,8 @@
 	};
 #else
 	static PyMethodDef SecureBytesMethods[] = {
-		{"clearmem", SecureBytes_clearmem, METH_O,
-		PyDoc_STR("clear the memory of the string")},
+		{"clearmem", SecureBytes_clearmem, METH_O, PyDoc_STR("clear the memory of the string")},
+		{"scanmem", SecureBytes_scanmem, METH_O, PyDoc_STR("scan memory of a process for a string")},
 		{NULL, NULL, 0, NULL},
 	};
 #endif
