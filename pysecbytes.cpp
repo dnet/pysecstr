@@ -70,19 +70,11 @@ static PyObject* SecureBytes_scanmem(PyObject *self, PyObject *args) {
     Py_RETURN_FALSE;
 }
 
-#if PY_MAJOR_VERSION >= 3
-	static PyMethodDef SecureBytesMethods[] = {
-		{"clearmem", SecureBytes_clearmem, METH_VARARGS, "clear the memory of a bytes-like object or string"},
-		{"scanmem", SecureBytes_scanmem, METH_VARARGS, "scan process memory for a bytes-like object or string"},
-		{NULL, NULL, 0, NULL},
-	};
-#else
-	static PyMethodDef SecureBytesMethods[] = {
-		{"clearmem", SecureBytes_clearmem, METH_O, PyDoc_STR("clear the memory of the string")},
-		{"scanmem", SecureBytes_scanmem, METH_O, PyDoc_STR("scan memory of a process for a string")},
-		{NULL, NULL, 0, NULL},
-	};
-#endif
+static PyMethodDef SecureBytesMethods[] = {
+    {"clearmem", SecureBytes_clearmem, METH_VARARGS, PyDoc_STR("clear the memory of the string")},
+    {"scanmem", SecureBytes_scanmem, METH_VARARGS, PyDoc_STR("scan memory of a process for a string")},
+    {NULL, NULL, 0, NULL},
+};
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef SecureBytesDef = {
