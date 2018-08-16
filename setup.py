@@ -6,12 +6,12 @@ except ImportError:
     from distutils.core import setup, Extension
 
 setup(
-    name='SecureString',
+    name='SecureBytes',
     version='0.2',
-    description='Clears the contents of strings containing cryptographic material',
-    author=u'András Veres-Szentkirályi, Lawrence Fan',
-    author_email='vsza@vsza.hu, fanl3@rpi.edu',
-    url='https://github.com/dnet/pysecstr',
+    description='Clears the contents of bytes containing cryptographic material',
+    author=u'Erik Aronesty',
+    author_email='erik@getvida.io',
+    url='https://github.com/dnet/pysecbytes',
     license='MIT',
-    ext_modules=[Extension('SecureString', ['pysecstr.c'], libraries=['crypto'])],
+    ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp'])],
 )
