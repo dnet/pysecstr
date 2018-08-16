@@ -1,4 +1,4 @@
-Copyright (c) 2013 Andras Veres-Szentkiralyi
+Copyright (c) 2013 Andras Veres-Szentkiralyi, Erik Aronesty
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

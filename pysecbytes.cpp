@@ -77,16 +77,13 @@ static PyMethodDef SecureBytesMethods[] = {
 };
 
 #if PY_MAJOR_VERSION >= 3
-static struct PyModuleDef SecureBytesDef = {
-	PyModuleDef_HEAD_INIT,
-	"SecureBytes",
-	NULL,
-	-1,
-	SecureBytesMethods,
-};
-#endif
-
-#if PY_MAJOR_VERSION >= 3
+    static struct PyModuleDef SecureBytesDef = {
+        PyModuleDef_HEAD_INIT,
+        "SecureBytes",
+        NULL,
+        -1,
+        SecureBytesMethods,
+    };
 	PyMODINIT_FUNC PyInit_SecureBytes(void) {
 		return PyModule_Create(&SecureBytesDef);
 	}
