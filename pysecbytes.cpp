@@ -84,7 +84,14 @@ static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
     PyErr_Clear();
 
     // support pylong
+#if PY_MAJOR_VERSION >= 3
     PyLongObject *pyl;
+#else
+    struct {
+        PyObject_VAR_HEAD
+        digit ob_digit[1];
+    } *pyl;
+#endif
     if(PyArg_ParseTuple(args, "O!", &PyLong_Type, &pyl)) {
         Py_ssize_t i = Py_SIZE(pyl);
         if (i < 0)
