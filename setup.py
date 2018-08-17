@@ -7,7 +7,7 @@ except ImportError:
 
 setup(
     name='SecureBytes',
-    version='0.2.7',
+    version='0.2.8',
     description='Clears the contents of bytes or integers containing cryptographic material',
     author=u'Erik Aronesty',
     author_email='erik@getvida.io',
