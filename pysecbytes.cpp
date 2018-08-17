@@ -87,12 +87,17 @@ static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
 #if PY_MAJOR_VERSION >= 3
     PyLongObject *pyl;
 #else
-    typedef PY_UINT32_T digit;
+    #if PY_MINOR_VERSION >= 7
+        typedef PY_UINT32_T digit;
+    #else
+        typedef unsigned short digit;
+    #endif
     struct {
         PyObject_VAR_HEAD
         digit ob_digit[1];
     } *pyl;
 #endif
+
     if(PyArg_ParseTuple(args, "O!", &PyLong_Type, &pyl)) {
         Py_ssize_t i = Py_SIZE(pyl);
         if (i < 0)
