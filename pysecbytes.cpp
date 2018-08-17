@@ -87,6 +87,7 @@ static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
 #if PY_MAJOR_VERSION >= 3
     PyLongObject *pyl;
 #else
+    typedef PY_UINT32_T digit;
     struct {
         PyObject_VAR_HEAD
         digit ob_digit[1];
