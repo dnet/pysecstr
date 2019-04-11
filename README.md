@@ -8,7 +8,7 @@
 
 Currently supports clearing integers, strings and bytes
 
-    from SecureBytes import clearmem
+    from SecureBytes import clearmem, safemem
     
     x = b'data that must be removed'
 
@@ -18,10 +18,29 @@ Currently supports clearing integers, strings and bytes
 
     assert(b'data' not in copy_of_x)
 
+Also now supports 'safemem', which overrides python's allocator:
+
+    safemem.start()
+
+    x = b'data that must be removed'
+
+    del x
+
+    # x is not in ram
+
+And temporarily overriding it:
+
+    with safemem():
+        x = b'data that must be removed'
+        del x
+
+    # x is not in ram
+
     
 ## Warnings:
 
   - Do not try to derive from str or bytes... extra copies of your data will be made
   - Clearing strings and bytes also clears all references to them
   - If you choose store sensitive material in a class, and put clearmem in __del__, it will only be cleared when the last reference is freed
+  - "safemem" is not yet efficient (TODO) nor does it prevent swapping (TODO)
 

@@ -132,6 +132,142 @@ static PyMethodDef SecureBytesMethods[] = {
     {NULL, NULL, 0, NULL},
 };
 
+////////////////// safemem context
+
+#if PY_VERSION_HEX >= 0x03050000
+#  define PyMemAllocator PyMemAllocatorEx
+#  define NEED_CALLOC
+#endif
+
+#include <unordered_map>
+
+class AllocMap {
+    std::unordered_map<void *, size_t> map_;
+
+    public:
+        void * alloc(void *ptr, size_t size) {
+            map_[ptr]=size;
+            return ptr;
+        }
+
+        void free(void *ptr) {
+            auto it = map_.find(ptr);
+            if (it != map_.end())  {
+                memset(ptr, 0, it->second);
+                map_.erase(it);
+            }
+        }
+
+        AllocMap() {
+            setbuf(stdout, NULL);
+        }
+};
+
+AllocMap map;
+
+struct {
+    PyMemAllocator obj;
+} hook;
+
+static void* hook_malloc(void *ctx, size_t size)
+{
+    PyMemAllocator *alloc = (PyMemAllocator *)ctx;
+    return map.alloc(alloc->malloc(alloc->ctx, size), size);
+}
+
+static void* hook_realloc(void *ctx, void *ptr, size_t new_size)
+{
+    PyMemAllocator *alloc = (PyMemAllocator *)ctx;
+    auto mem = alloc->realloc(alloc->ctx, ptr, new_size);
+    map.free(ptr);
+    map.alloc(mem, new_size);
+    return mem;
+}
+
+#ifdef NEED_CALLOC
+static void* hook_calloc(void *ctx, size_t nelem, size_t elsize)
+{
+    PyMemAllocator *alloc = (PyMemAllocator *)ctx;
+    return map.alloc(alloc->calloc(alloc->ctx, nelem, elsize), nelem*elsize);
+}
+#endif
+
+
+static void hook_free(void *ctx, void *ptr)
+{
+    PyMemAllocator *alloc = (PyMemAllocator *)ctx;
+    map.free(ptr);
+    alloc->free(alloc->ctx, ptr);
+}
+
+PyMemAllocator g_alloc;
+
+static PyObject* pysafemem_start(PyObject *self, PyObject *args) {
+    g_alloc.malloc = hook_malloc;
+#ifdef NEED_CALLOC
+    g_alloc.calloc = hook_calloc;
+#endif
+    g_alloc.realloc = hook_realloc;
+    g_alloc.free = hook_free;
+
+    PyMem_GetAllocator(PYMEM_DOMAIN_OBJ, &hook.obj);
+
+    g_alloc.ctx = &hook.obj;
+    PyMem_SetAllocator(PYMEM_DOMAIN_OBJ, &g_alloc);
+    Py_RETURN_NONE;
+}
+
+static PyObject* pysafemem_stop(PyObject *self, PyObject *args) {
+    PyMem_SetAllocator(PYMEM_DOMAIN_OBJ, &hook.obj);
+    Py_RETURN_NONE;
+}
+
+typedef struct {
+    PyObject_HEAD
+    /* Type-specific fields go here. */
+} SafeCtxObj;
+
+static PyMethodDef SafeCtx_methods[] = {
+    {"start", pysafemem_start, METH_STATIC | METH_NOARGS, PyDoc_STR("begin using safe mem allocator")},
+    {"stop", pysafemem_stop, METH_STATIC | METH_NOARGS, PyDoc_STR("end using safe mem allocator")},
+    {"__enter__", pysafemem_start, METH_VARARGS, PyDoc_STR("begin using safe mem allocator")},
+    {"__exit__", pysafemem_stop, METH_VARARGS, PyDoc_STR("end using safe mem allocator")},
+    {NULL, NULL, 0, NULL},
+};
+
+static void
+SafeCtx_dealloc(PyObject* self)
+{
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+SafeCtx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    return type->tp_alloc(type, 0);
+}
+
+static PyTypeObject SafeCtxType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "SecureBytes.safemem",
+    sizeof(SafeCtxObj),
+    0,
+    (destructor)SafeCtx_dealloc,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    Py_TPFLAGS_DEFAULT,
+    "pysafemem context object",
+    0,0,0,0,0,0,
+    SafeCtx_methods,
+    0,0,0,0,0,0,0,0,0,
+    SafeCtx_new,
+};
+
+static void pysafemem_init(PyObject*m) {
+    if (PyType_Ready(&SafeCtxType) < 0)
+        return;
+    PyModule_AddObject(m, "safemem", (PyObject *) &SafeCtxType);
+}
+
 #if PY_MAJOR_VERSION >= 3
     static struct PyModuleDef SecureBytesDef = {
         PyModuleDef_HEAD_INIT,
@@ -141,11 +277,14 @@ static PyMethodDef SecureBytesMethods[] = {
         SecureBytesMethods,
     };
 	PyMODINIT_FUNC PyInit_SecureBytes(void) {
-		return PyModule_Create(&SecureBytesDef);
+		auto m = PyModule_Create(&SecureBytesDef);
+        pysafemem_init(m);
+        return m;
 	}
 #else
 	PyMODINIT_FUNC initSecureBytes(void)
 	{
-		(void) Py_InitModule("SecureBytes", SecureBytesMethods);
+		auto m = Py_InitModule("SecureBytes", SecureBytesMethods);
+        pysafemem_init(m);
 	}
 #endif

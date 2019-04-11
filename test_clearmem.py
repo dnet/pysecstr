@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from SecureBytes import clearmem, scanmem
+from SecureBytes import clearmem, scanmem, safemem
 
 import sys
 
@@ -46,6 +46,43 @@ class TestSecureBytes(TestCase):
 
         # adjacent a+b not in memory
         assert(not scanmem(a,b))
+
+    def test_safemem_context(self):
+        # todo, make linux vm area scanner
+        if sys.platform != "win32":
+            return
+
+        a = b"zzX~X12R9s8fysd98h"
+        b = b"zzX~X34Gsdf909sdjf"
+
+        with safemem():
+            s = a + b
+            # adjacent a+b in memory
+            assert(scanmem(a,b))
+            del s                       # freed refs are zeroed by pysafemem while in context
+
+        # adjacent a+b not in memory
+        assert(not scanmem(a,b))
+
+    def test_safemem_install(self):
+        # todo, make linux vm area scanner
+        if sys.platform != "win32":
+            return
+
+        a = b"zzX~X12R9s8fysd98h"
+        b = b"zzX~X34Gsdf909sdjf"
+
+        safemem.start()
+
+        s = a + b
+        # adjacent a+b in memory
+        assert(scanmem(a,b))
+        del s                       # freed refs are zeroed by pysafemem while in context
+
+        # adjacent a+b not in memory
+        assert(not scanmem(a,b))
+
+        safemem.stop()
 
     def test_del_refs(self):
         # todo, make linux vm area scanner 
