@@ -9,11 +9,11 @@ import sys
 excomp=None
 excomp=["-std=c++11"]
 if sys.platform == "win32":
-    excomp=['"-std:c++11"']
+    excomp=["/std:c++11"]
 
 setup(
     name='SecureBytes',
-    version='0.3.1',
+    version='0.3.2',
     description='Clears the contents of bytes or integers containing cryptographic material',
     author=u'Erik Aronesty',
     long_description=open("README.md").read(),
