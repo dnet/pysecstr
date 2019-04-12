@@ -13,7 +13,7 @@ if sys.platform == "win32":
 
 setup(
     name='SecureBytes',
-    version='0.3.2',
+    version='0.3.3',
     description='Clears the contents of bytes or integers containing cryptographic material',
     author=u'Erik Aronesty',
     long_description=open("README.md").read(),
