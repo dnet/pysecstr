@@ -18,17 +18,7 @@ Currently supports clearing integers, strings and bytes
 
     assert(b'data' not in copy_of_x)
 
-Also now supports 'safemem', which overrides python's allocator:
-
-    safemem.start()
-
-    x = b'data that must be removed'
-
-    del x
-
-    # x is not in ram
-
-And temporarily overriding it:
+And temporarily overriding mem allocator to zero ram and prevent paging:
 
     with safemem():
         x = b'data that must be removed'
