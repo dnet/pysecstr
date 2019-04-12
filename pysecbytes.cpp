@@ -133,12 +133,16 @@ static PyMethodDef SecureBytesMethods[] = {
 };
 
 ////////////////// safemem context
+#if PY_VERSION_HEX >= 0x03000000
+#define MEMALLOC
+#endif
 
 #if PY_VERSION_HEX >= 0x03050000
 #  define PyMemAllocator PyMemAllocatorEx
 #  define NEED_CALLOC
 #endif
 
+#ifdef MEMALLOC
 #include <unordered_map>
 
 class AllocMap {
@@ -265,10 +269,14 @@ static PyTypeObject SafeCtxType = {
     SafeCtx_new,
 };
 
+#endif // memalloc
+
 static void pysafemem_init(PyObject*m) {
+#ifdef MEMALLOC    
     if (PyType_Ready(&SafeCtxType) < 0)
         return;
     PyModule_AddObject(m, "safemem", (PyObject *) &SafeCtxType);
+#endif
 }
 
 #if PY_MAJOR_VERSION >= 3
