@@ -9,7 +9,7 @@ import sys
 excomp=None
 excomp=["-std=c++11"]
 if sys.platform == "win32":
-    excomp=['"-std:c++11"']
+    excomp=["/std:c++11"]
 
 setup(
     name='SecureBytes',
