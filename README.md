@@ -26,6 +26,8 @@ In python3 only, temporarily overriding mem allocator to zero ram and prevent pa
 
     # x is not in ram
 
+Currently, safemem and scanmem aren't supported on all pythons and platforms, 
+use `import safemem_supported, scanmem_supported` to check.
     
 ## Warnings:
 
