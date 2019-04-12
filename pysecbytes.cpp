@@ -146,6 +146,9 @@ class AllocMap {
 
     public:
         void * alloc(void *ptr, size_t size) {
+#ifdef WIN32
+            VirtualLock(ptr, size)
+#endif
             map_[ptr]=size;
             return ptr;
         }
