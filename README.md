@@ -18,7 +18,7 @@ Currently supports clearing integers, strings and bytes
 
     assert(b'data' not in copy_of_x)
 
-And temporarily overriding mem allocator to zero ram and prevent paging:
+In python3 only, temporarily overriding mem allocator to zero ram and prevent paging:
 
     with safemem():
         x = b'data that must be removed'
