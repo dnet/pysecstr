@@ -16,6 +16,7 @@ setup(
     version='0.3.1',
     description='Clears the contents of bytes or integers containing cryptographic material',
     author=u'Erik Aronesty',
+    long_description=open("README.md").read(),
     author_email='erik@getvida.io',
     url='https://github.com/vidaid/pysecbytes',
     license='MIT',
