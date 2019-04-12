@@ -32,5 +32,5 @@ In python3 only, temporarily overriding mem allocator to zero ram and prevent pa
   - Do not try to derive from str or bytes... extra copies of your data will be made
   - Clearing strings and bytes also clears all references to them
   - If you choose store sensitive material in a class, and put clearmem in __del__, it will only be cleared when the last reference is freed
-  - "safemem" is not yet efficient (TODO) nor does it prevent swapping (TODO)
+  - "safemem" is not yet efficient (TODO),  and it only prevents swapping on Windows (TODO)
 
