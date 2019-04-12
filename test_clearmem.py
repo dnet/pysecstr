@@ -2,7 +2,10 @@ import sys
 
 import unittest
 
-from SecureBytes import clearmem, scanmem, safemem, safemem_supported, scanmem_supported
+from SecureBytes import clearmem, scanmem
+
+if sys.version_info >= (3, 0):
+    from SecureBytes import safemem
 
 class TestSecureBytes(unittest.TestCase):
     def test_clear_str(self):
@@ -31,7 +34,7 @@ class TestSecureBytes(unittest.TestCase):
 
     def test_scanmem(self):
         # todo, make linux vm area scanner 
-        if not scanmem_supported:
+        if sys.platform != "win32":
             return
 
         a = b"zzX~X12R9s8fysd98hf"
@@ -47,7 +50,7 @@ class TestSecureBytes(unittest.TestCase):
         # adjacent a+b not in memory
         assert(not scanmem(a,b))
 
-    @unittest.skipIf(not safemem_supported,"python2 no allocators")
+    @unittest.skipIf(sys.version_info < (3, 0),"python2 no allocators")
     def test_safemem_context(self):
 
         a = b"zzX~X12R9s8fysd98h"
@@ -64,7 +67,7 @@ class TestSecureBytes(unittest.TestCase):
         if sys.platform == "win32":
             assert(not scanmem(a,b))
 
-    @unittest.skipIf(not safemem_supported,"python2 no allocators")
+    @unittest.skipIf(sys.version_info < (3, 0),"python2 no allocators")
     def test_safemem_install(self):
         a = b"zzX~X12R9s8fysd98h"
         b = b"zzX~X34Gsdf909sdjf"
@@ -73,17 +76,21 @@ class TestSecureBytes(unittest.TestCase):
 
         s = a + b
         # adjacent a+b in memory
-        if scanmem_supported:
+        if sys.platform == "win32":
             assert(scanmem(a,b))
         del s                       # freed refs are zeroed by pysafemem while in context
 
         # adjacent a+b not in memory
-        if scanmem_supported:
+        if sys.platform == "win32":
             assert(not scanmem(a,b))
 
         safemem.stop()
 
     def test_del_refs(self):
+        # todo, make linux vm area scanner 
+        if sys.platform != "win32":
+            return
+
         a = b"zzX~X12R9s8fysd9"
         b = b"zzX~X34Gsdf909sd"
 
@@ -101,16 +108,16 @@ class TestSecureBytes(unittest.TestCase):
         x = secbytes(a+b)
         y = x
 
-        if scanmem_supported:
+        if sys.platform == "win32":
             assert(scanmem(a,b))
 
         del(x)
 
         # reference to y has material
-        if scanmem_supported:
+        if sys.platform == "win32":
             assert(scanmem(a,b))
 
         del(y)
             
-        if scanmem_supported:
+        if sys.platform == "win32":
             assert(not scanmem(a,b))

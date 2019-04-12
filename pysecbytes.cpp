@@ -2,19 +2,18 @@
 
 #include <Python.h>
 
-static void _hexdump(char *dat, size_t len) {
-    for (size_t i=0;i<len;++i) {
-        printf("%02x", dat[i]);
-    }
-    printf("\n");
-}
- 
 #ifdef _WIN32
-    #define MEMSCAN    
     #include <Windows.h>
     #include <vector>
 
-   static char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
+    void _hexdump(char *dat, size_t len) {
+        for (size_t i=0;i<len;++i) {
+            printf("%02x", dat[i]);
+        }
+        printf("\n");
+    }
+
+    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb)
     {
         DWORD pid = GetCurrentProcessId();
         HANDLE process = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -66,44 +65,12 @@ static void _hexdump(char *dat, size_t len) {
         }
         return 0;
     }
-#elif __linux__
-    #define MEMSCAN    
-
-    extern "C" {
-    #include "memstats.h"
-    }
-
-    static char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb) {
-        auto range = mem_stats(0);
-        if (!range)
-            return 0;
-
-        char *ret = NULL;
-        while(!ret && range) {
-            if (!strcmp(range->name,"[heap]") || !strcmp(range->name,"[stack]") || !strcmp(range->name,"")) {
-                for(size_t i = 0; i < (range->length - lena - lenb + 1); ++i)
-                {
-                    if(memcmp(a, ((char *)range->start)+i, lena) == 0)
-                    {
-                        if(memcmp(b, (((char *)range->start)+i) + lena, lenb) == 0)
-                        {
-                            ret = ((char *)range->start)+i;
-                            break;
-                        }
-                    }
-                }
-            }
-            range = range->next;
-        }
-
-        free_mem_stats(range);
-        return ret;
-    }
 #else
-    static char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb) {
+    char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb) {
         // todo, some ptrace thing?  osx?
         return 0;
     }
+
 #endif
 
 static PyObject* SecureBytes_clearmem(PyObject *self, PyObject *args) {
@@ -183,7 +150,7 @@ class AllocMap {
 
     public:
         void * alloc(void *ptr, size_t size) {
-#ifdef _WIN32
+#ifdef WIN32
             VirtualLock(ptr, size);
 #endif
             map_[ptr]=size;
@@ -261,15 +228,6 @@ static PyObject* pysafemem_stop(PyObject *self, PyObject *args) {
     PyMem_SetAllocator(PYMEM_DOMAIN_OBJ, &hook.obj);
     Py_RETURN_NONE;
 }
-#else
-static PyObject* pysafemem_start(PyObject *self, PyObject *args) {
-    Py_RETURN_NONE;
-}
-
-static PyObject* pysafemem_stop(PyObject *self, PyObject *args) {
-    Py_RETURN_NONE;
-}
-#endif // memalloc
 
 typedef struct {
     PyObject_HEAD
@@ -311,23 +269,14 @@ static PyTypeObject SafeCtxType = {
     SafeCtx_new,
 };
 
+#endif // memalloc
+
 static void pysafemem_init(PyObject*m) {
 #ifdef MEMALLOC    
-    PyModule_AddIntConstant(m, "safemem_supported", 1);
-#else
-    PyModule_AddIntConstant(m, "safemem_supported", 0);
-#endif
-
-#ifdef MEMSCAN    
-    PyModule_AddIntConstant(m, "scanmem_supported", 1);
-#else
-    PyModule_AddIntConstant(m, "scanmem_supported", 0);
-#endif
-
     if (PyType_Ready(&SafeCtxType) < 0)
         return;
-
     PyModule_AddObject(m, "safemem", (PyObject *) &SafeCtxType);
+#endif
 }
 
 #if PY_MAJOR_VERSION >= 3
