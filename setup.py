@@ -5,6 +5,12 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
+import sys
+excomp=None
+excomp=["-std=c++17"]
+if sys.platform == "win32":
+    excomp=['"-std:c++17"']
+
 setup(
     name='SecureBytes',
     version='0.3.1',
@@ -13,5 +19,5 @@ setup(
     author_email='erik@getvida.io',
     url='https://github.com/vidaid/pysecbytes',
     license='MIT',
-    ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp'])],
+    ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp'], extra_compile_args=excomp)],
 )
