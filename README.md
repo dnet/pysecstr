@@ -2,7 +2,7 @@
 
 ## Install:
 
-    pip install git+https://github.com/VidaID/pysecbytes.git  
+    pip install SecureBytes
 
 ## Use:
 
