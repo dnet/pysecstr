@@ -56,12 +56,12 @@ class TestSecureBytes(unittest.TestCase):
         with safemem():
             s = a + b
             # adjacent a+b in memory
-            if sys.platform == "win32":
+            if scanmem_supported:
                 assert(scanmem(a,b))
             del s                       # freed refs are zeroed by pysafemem while in context
 
         # adjacent a+b not in memory
-        if sys.platform == "win32":
+        if scanmem_supported:
             assert(not scanmem(a,b))
 
     @unittest.skipIf(not safemem_supported,"python2 no allocators")
