@@ -1,3 +1,4 @@
+#ifndef _WIN32
 #define _POSIX_C_SOURCE 200809L
 #define _DEFAULT_SOURCE
 #include <stdlib.h>
@@ -123,3 +124,4 @@ address_range *mem_stats(pid_t pid)
     errno = 0;
     return list;
 }
+#endif
