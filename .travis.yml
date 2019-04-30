@@ -1,12 +1,32 @@
 language: python
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-# command to install dependencies
+matrix:
+  include:
+  - python: 3.7
+    dist: xenial
+  - python: 3.6
+  - python: 3.5
+  - python: 2.7
+  - name: python 3.7 osx 10.14.3
+    os: osx
+    osx_image: xcode10.2
+    language: shell
+  - name: python choco latest windows
+    os: windows
+    env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    before_install: choco install python
+    language: shell
 install:
-  - pip install nose
-  - python setup.py install
-# command to run tests
+- pip install nose
+- python setup.py install
 script:
-  - nosetests
+- python -mnose
+deploy:
+  provider: pypi
+  user: earonesty
+  password:
+    secure: X/9xoM6flT6wA0sJ9Zz25HPSP2m50ULgse9loKu4OFnDZOsCY0Q9a0cQ1oHFz/iHXUVHvEIcd4v2amzRBrtMh4cQovCRo9RcutZKxakhfO8HYciYARUYSgwFs7yFeJBEPFRx471xsoQRTpnBGYP3hnbLHQWTrKe32sHjFU2eWPDKFUqbnGsAAuqYW0hSU6/TBPaJzf7FyMYUWzuLMN9LZvESM1r9hQMIogj26xZ1ms7awsH9Q2er6Tb56XHGj4OJ3ED1kOjC95SYL6ckVxJgYJxEE+AUL8UvGSlJDiCUTl0iAuOOkS8nLsvW2RGQ9gr1zDwIusuGKLbAiCOf1L5zXhCdnL/PZdrsMtRFMaMaof6DUtU8o2GfN8O6Jj2qMfAna8SyEwCl4zlwl5VPjSRKYP6t41qicXOXWvYqoQcjzVyzX0zjfIKlhpv0yrRVDNWMI8h/3k93NB6KaU00y5FblRHdhss/j9R848wpceWhtNntI5Yr3v2fFY/cILxoeZc68aVSW3HTCWiKfWnxpjpWP3WjX+bzk0eAY7wGPCYzw8+uJY0SBC+5Y+xZmcqFH8DxbhbyG3Ep8xJin+sJqb5msE43gIXMba1arm1ERs/7XIgfeovrI1Fd2srJJRA0cYsNX3LZxKBYNtnkqUFMaUfUX7e9n8BHuruGoYsT5Jbv8SQ=
+  on:
+    tags: true
+  distributions: sdist bdist_wheel
+  skip_existing: true
+

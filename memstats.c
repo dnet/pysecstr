@@ -1,4 +1,4 @@
-#ifndef _WIN32
+#ifdef __linux__
 #define _POSIX_C_SOURCE 200809L
 #define _DEFAULT_SOURCE
 #include <stdlib.h>

@@ -36,13 +36,19 @@ class TestSecureBytes(unittest.TestCase):
 
         a = b"zzX~X12R9s8fysd98hf"
         b = b"zzX~X34Gsdf909sdjff"
+        c = b"zzX~Y34Gsdff90d9d9f"
+
         s = a + b
+        t = b + c
 
         # adjacent a+b in memory
         assert(scanmem(a,b))
+        assert(scanmem(b,c))
 
         # remove s
         clearmem(s)
+
+        del s
 
         # adjacent a+b not in memory
         assert(not scanmem(a,b))

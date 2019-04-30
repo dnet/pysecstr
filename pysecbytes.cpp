@@ -148,6 +148,7 @@ static void _hexdump(char *dat, size_t len) {
         return ret;
     }
 #else
+    #define MEMSCAN_SUPPORTED 0
     static char* getAddressOfData(const char *a, size_t lena, const char *b, size_t lenb) {
         // todo, some ptrace thing?  osx?
         return 0;

@@ -7,7 +7,9 @@ except ImportError:
 
 import sys
 excomp=None
-excomp=["-std=c++11"]
+if sys.platform != "darwin":
+    excomp=["-std=c++11"]
+
 if sys.platform == "win32":
     excomp=["/std:c++11"]
 
