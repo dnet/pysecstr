@@ -22,5 +22,5 @@ setup(
     author_email='erik@getvida.io',
     url='https://github.com/vidaid/pysecbytes',
     license='MIT',
-    ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp','memstats.c','memstats.h'], extra_compile_args=excomp)],
+    ext_modules=[Extension('SecureBytes', ['pysecbytes.cpp','memstats.c'], extra_compile_args=excomp)],
 )
